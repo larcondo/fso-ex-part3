@@ -45,13 +45,20 @@ app.get('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
   const body = req.body
 
-  if (!body.hasOwnProperty('name') || body.name === null) return res.status(400).send({ error: 'name is required'})
+  if (!body.hasOwnProperty('name')) return res.status(400).send({ error: 'name is required'})
+  if (body.name === null || body.name === '') return res.status(400).send({ error: 'name field cannot be empty'})
 
-  if (!body.hasOwnProperty('number') || body.number === null) return res.status(400).send({ error: 'number is required'})
+  if (!body.hasOwnProperty('number')) return res.status(400).send({ error: 'number is required'})
+  if (body.number === null || body.number === '') return res.status(400).send({ error: 'number field cannot be empty'})
+
+  const nameExists = phonebook.some( entry => entry.name === body.name )
+
+  if (nameExists) return res.status(400).send({ error: 'name must be unique'})
 
   const newEntry = { 
     id: Math.floor(Math.random() * 10000), 
-    ...body
+    name: body.name,
+    number: body.number
   }
 
   phonebook = phonebook.concat(newEntry)
