@@ -1,6 +1,7 @@
 const PORT = 3001
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
 
 let phonebook = [
   { 
@@ -26,6 +27,7 @@ let phonebook = [
 ]
 
 app.use(express.json())
+app.use(morgan("tiny"))
 
 app.get('/api/persons', (req, res) => {
   res.status(200).json(phonebook)
