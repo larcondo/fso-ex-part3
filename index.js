@@ -25,6 +25,8 @@ let phonebook = [
   }
 ]
 
+app.use(express.json())
+
 app.get('/api/persons', (req, res) => {
   res.status(200).json(phonebook)
 })
@@ -38,6 +40,22 @@ app.get('/api/persons/:id', (req, res) => {
   // ? res.status(404).send({ error: 'Person not found'})
     ? res.status(404).end()
     : res.status(200).json(person)
+})
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+
+  if (!body.hasOwnProperty('name') || body.name === null) return res.status(400).send({ error: 'name is required'})
+
+  if (!body.hasOwnProperty('number') || body.number === null) return res.status(400).send({ error: 'number is required'})
+
+  const newEntry = { 
+    id: Math.floor(Math.random() * 10000), 
+    ...body
+  }
+
+  phonebook = phonebook.concat(newEntry)
+  res.status(200).send(newEntry)
 })
 
 app.delete('/api/persons/:id', (req, res) => {
