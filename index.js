@@ -26,10 +26,8 @@ const phonebook = [
 ]
 
 app.get('/api/persons', (req, res) => {
-  res.status(200)
-  res.json(phonebook)
+  res.status(200).json(phonebook)
 })
-
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
