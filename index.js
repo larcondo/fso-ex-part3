@@ -1,6 +1,7 @@
 const PORT = 3001
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const morgan = require('morgan')
 
 let phonebook = [
@@ -23,10 +24,16 @@ let phonebook = [
     "id": 4,
     "name": "Mary Poppendieck", 
     "number": "39-23-6423122"
+  },
+  { 
+    "id": 5,
+    "name": "John Miller", 
+    "number": "39-22-1424178"
   }
 ]
 
 app.use(express.json())
+app.use(cors())
 morgan.token('body', function(req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
