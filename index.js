@@ -4,6 +4,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
+const { errorHandler } = require('./utils/middleware')
 const Person = require('./models/person')
 
 let phonebook = [
@@ -42,29 +43,28 @@ app.use(express.static('dist'))
 morgan.token('body', function(req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then( persons => {
       res.status(200).json(persons)
     })
-    .catch( error => {
-      console.log(error)
-      res.status(500).end()
-    })
+    .catch( error => next(error))
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
   const { id } = req.params
-  const person = phonebook.find( entry => entry.id === Number(id))
-
-  person === undefined
-  // ? res.status(404).send(`<h1>404</h1><p>Person not found</p>`)
-  // ? res.status(404).send({ error: 'Person not found'})
-    ? res.status(404).end()
-    : res.status(200).json(person)
+  Person.findById(id)
+    .then( person => {
+      if (person) {
+        res.status(200).json(person)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch( error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if (!body.hasOwnProperty('name')) return res.status(400).send({ error: 'name is required'})
@@ -85,19 +85,16 @@ app.post('/api/persons', (req, res) => {
     .then( savedEntry => {
       res.status(200).json(savedEntry)
     })
-    .catch( error => res.status(500).end())
+    .catch( error => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   const { id } = req.params
   Person.findByIdAndRemove(id)
     .then( result => {
       res.status(204).end()
     })
-    .catch( error => {
-      console.log(error)
-      res.status(500).end()
-    })
+    .catch( error => next(error))
 })
 
 app.get('/info', (req, res) => {
@@ -108,6 +105,9 @@ app.get('/info', (req, res) => {
   `
   res.send(htmlContent)
 })
+
+// Middleware
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
