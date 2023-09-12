@@ -73,18 +73,19 @@ app.post('/api/persons', (req, res) => {
   if (!body.hasOwnProperty('number')) return res.status(400).send({ error: 'number is required'})
   if (body.number === null || body.number === '') return res.status(400).send({ error: 'number field cannot be empty'})
 
-  const nameExists = phonebook.some( entry => entry.name === body.name )
+  // const nameExists = phonebook.some( entry => entry.name === body.name )
+  // if (nameExists) return res.status(400).send({ error: 'name must be unique'})
 
-  if (nameExists) return res.status(400).send({ error: 'name must be unique'})
-
-  const newEntry = { 
-    id: Math.floor(Math.random() * 10000), 
+  const newEntry = new Person({ 
     name: body.name,
     number: body.number
-  }
+  })
 
-  phonebook = phonebook.concat(newEntry)
-  res.status(200).send(newEntry)
+  newEntry.save()
+    .then( savedEntry => {
+      res.status(200).json(savedEntry)
+    })
+    .catch( error => res.status(500).end())
 })
 
 app.delete('/api/persons/:id', (req, res) => {
