@@ -109,13 +109,17 @@ app.delete('/api/persons/:id', (req, res, next) => {
     .catch( error => next(error))
 })
 
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, error) => {
   const reqDate = new Date()
-  const htmlContent = `
-    <p>Phonebook has info for ${phonebook.length} people</p>
-    <p>${reqDate}</p>
-  `
-  res.send(htmlContent)
+  Person.find({})
+    .then( people => {
+      const htmlContent = `
+        <p>Phonebook has info for ${people.length} people</p>
+        <p>${reqDate}</p>
+      `
+      res.status(200).send(htmlContent)
+    })
+    .catch( error => next(error))
 })
 
 // Middleware
