@@ -10,10 +10,11 @@ if (process.argv.length < 3) {
 const password = process.argv[2]
 const nombre = process.argv[3]
 const numero = process.argv[4]
-const MONGODB_IRI = `mongodb://lucas:${password}@127.0.0.1:27017/phonebook?authSource=admin`
+const MONGODB_URI = `mongodb://lucas:${password}@127.0.0.1:27017/phonebook?authSource=admin`
+// const MONGODB_URI = `mongodb+srv://larcC1498:${password}@devcluster.f8xrxcr.mongodb.net/phonebook?retryWrites=true&w=majority`
 
 mongoose.set('strictQuery', false)
-mongoose.connect(MONGODB_IRI)
+mongoose.connect(MONGODB_URI)
 
 const phonebookSchema = new mongoose.Schema({
   name: String,
@@ -28,14 +29,14 @@ if (process.argv.length === 3) {
       console.log('phonebook:')
       results.forEach( person => console.log(`${person.name} ${person.number}`))
       mongoose.connection.close()
-    }) 
+    })
 } else {
 
   if (!nombre) {
     console.log('REQUIRED: name')
     process.exit()
   }
-  
+
   if (!numero) {
     console.log('REQUIRED: number')
     process.exit()
@@ -45,7 +46,7 @@ if (process.argv.length === 3) {
     name: nombre,
     number: numero
   })
-  
+
   entry.save()
     .then( result => {
       console.log(`added ${result.name} number ${result.number} to phonebook`)
@@ -56,4 +57,3 @@ if (process.argv.length === 3) {
       mongoose.connection.close()
     })
 }
-

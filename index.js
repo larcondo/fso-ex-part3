@@ -7,34 +7,6 @@ const morgan = require('morgan')
 const { errorHandler } = require('./utils/middleware')
 const Person = require('./models/person')
 
-let phonebook = [
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  },
-  { 
-    "id": 5,
-    "name": "John Miller", 
-    "number": "39-22-1424178"
-  }
-]
-
 app.use(express.json())
 app.use(cors())
 
@@ -65,20 +37,17 @@ app.get('/api/persons/:id', (req, res, next) => {
 })
 
 app.post('/api/persons', (req, res, next) => {
-  const body = req.body
+  const { name, number } = req.body
 
-  if (!body.hasOwnProperty('name')) return res.status(400).send({ error: 'name is required'})
-  if (body.name === null || body.name === '') return res.status(400).send({ error: 'name field cannot be empty'})
-
-  if (!body.hasOwnProperty('number')) return res.status(400).send({ error: 'number is required'})
-  if (body.number === null || body.number === '') return res.status(400).send({ error: 'number field cannot be empty'})
+  if (!name) return res.status(400).send({ error: 'name is required' })
+  if (!number) return res.status(400).send({ error: 'number is required' })
 
   // const nameExists = phonebook.some( entry => entry.name === body.name )
   // if (nameExists) return res.status(400).send({ error: 'name must be unique'})
 
-  const newEntry = new Person({ 
-    name: body.name,
-    number: body.number
+  const newEntry = new Person({
+    name: name,
+    number: number
   })
 
   newEntry.save()
@@ -93,13 +62,13 @@ app.put('/api/persons/:id', (req, res, next) => {
   const { name, number } = req.body
   console.log(`ID: ${id}`)
   Person.findByIdAndUpdate(
-    id, 
+    id,
     { name, number },
     { new: true, runValidators: true, context: 'query' }
   )
     .then( updated => {
       console.log(updated)
-      res.status(200).json({id, ...{ name, number }})    
+      res.status(200).json({ id, ...{ name, number } })
     })
     .catch(error => next(error))
 })
@@ -107,13 +76,13 @@ app.put('/api/persons/:id', (req, res, next) => {
 app.delete('/api/persons/:id', (req, res, next) => {
   const { id } = req.params
   Person.findByIdAndRemove(id)
-    .then( result => {
+    .then( () => {
       res.status(204).end()
     })
     .catch( error => next(error))
 })
 
-app.get('/info', (req, res, error) => {
+app.get('/info', (req, res, next) => {
   const reqDate = new Date()
   Person.find({})
     .then( people => {

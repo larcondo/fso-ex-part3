@@ -20,7 +20,7 @@ const personSchema = new mongoose.Schema({
     minLength: 3,
     required: [true, 'Name required']
   },
-  number: { 
+  number: {
     type: String,
     validate: {
       validator: function(v) {
@@ -31,7 +31,7 @@ const personSchema = new mongoose.Schema({
     required: [true, 'Number required']
   }
 })
-  
+
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
